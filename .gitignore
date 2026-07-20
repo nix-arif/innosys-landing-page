@@ -20,6 +20,9 @@
 # production
 /build
 
+# CMS uploads (user-generated content, not source)
+/public/uploads
+
 # misc
 .DS_Store
 *.pem
