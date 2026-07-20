@@ -2,10 +2,11 @@
 
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { SESSION_COOKIE_NAME, verifySessionToken } from "@/lib/auth";
+import { isDatabaseConfigured } from "@/lib/db";
 import {
   createCanvasSection,
   deleteSection,
@@ -15,6 +16,7 @@ import {
   type Section,
   type SectionContent,
 } from "@/lib/content";
+import { addMediaAsset, deleteMediaAsset, getMediaLibrary, type MediaAsset } from "@/lib/media";
 
 const ALLOWED_EXTENSIONS: Record<string, string> = {
   "image/png": ".png",
@@ -36,6 +38,7 @@ async function requireAdmin(): Promise<void> {
 function refreshPages() {
   revalidatePath("/");
   revalidatePath("/admin");
+  revalidatePath("/admin/media");
 }
 
 export async function saveSectionContentAction(
@@ -96,5 +99,31 @@ export async function uploadImageAction(formData: FormData): Promise<string> {
   await mkdir(uploadDir, { recursive: true });
   await writeFile(path.join(uploadDir, filename), bytes);
 
-  return `/uploads/${filename}`;
+  const url = `/uploads/${filename}`;
+
+  // Every upload becomes a reusable asset in the media library, regardless of
+  // which field it was uploaded from. Best-effort: if the DB isn't
+  // configured yet, the file still uploads fine, it just won't show up in
+  // the library list.
+  if (isDatabaseConfigured()) {
+    await addMediaAsset({ url, filename: file.name, size: file.size }).catch(() => {});
+  }
+
+  return url;
+}
+
+export async function listMediaAction(): Promise<MediaAsset[]> {
+  await requireAdmin();
+  return getMediaLibrary();
+}
+
+export async function deleteMediaAssetAction(id: string): Promise<void> {
+  await requireAdmin();
+  const url = await deleteMediaAsset(id);
+  if (url && url.startsWith("/uploads/")) {
+    const filename = path.basename(url);
+    const filePath = path.join(process.cwd(), "public", "uploads", filename);
+    await unlink(filePath).catch(() => {});
+  }
+  revalidatePath("/admin/media");
 }

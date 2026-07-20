@@ -172,7 +172,10 @@ export function AdminBoard({
           </button>
         </div>
 
-        <div className="border-t border-deep-blue/10 p-4">
+        <div className="flex flex-col gap-2 border-t border-deep-blue/10 p-4">
+          <Link href="/admin/media" className="text-xs font-semibold text-sky-blue hover:underline">
+            Media library →
+          </Link>
           <Link
             href="/"
             target="_blank"

@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { uploadImageAction } from "@/app/admin/actions";
+import { MediaPickerModal } from "@/components/admin/media/MediaPickerModal";
 
 export function ImageDropzone({
   value,
@@ -16,6 +17,7 @@ export function ImageDropzone({
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   async function handleFiles(files: FileList | null) {
     const file = files?.[0];
@@ -81,7 +83,25 @@ export function ImageDropzone({
           onChange={(event) => handleFiles(event.target.files)}
         />
       </div>
-      {error && <p className="mt-1 text-xs text-coral">{error}</p>}
+      <div className="mt-1 flex items-center justify-between">
+        {error ? <p className="text-xs text-coral">{error}</p> : <span />}
+        <button
+          type="button"
+          onClick={() => setPickerOpen(true)}
+          className="text-xs font-semibold text-sky-blue hover:underline"
+        >
+          Choose from library
+        </button>
+      </div>
+      {pickerOpen && (
+        <MediaPickerModal
+          onSelect={(url) => {
+            onChange(url);
+            setPickerOpen(false);
+          }}
+          onClose={() => setPickerOpen(false)}
+        />
+      )}
     </div>
   );
 }
