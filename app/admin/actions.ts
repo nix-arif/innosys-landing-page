@@ -2,11 +2,10 @@
 
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
-import { mkdir, unlink, writeFile } from "node:fs/promises";
-import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { SESSION_COOKIE_NAME, verifySessionToken } from "@/lib/auth";
 import { isDatabaseConfigured } from "@/lib/db";
+import { uploadToStorage, deleteFromStorage } from "@/lib/storage";
 import {
   createCanvasSection,
   deleteSection,
@@ -94,12 +93,8 @@ export async function uploadImageAction(formData: FormData): Promise<string> {
   }
 
   const bytes = Buffer.from(await file.arrayBuffer());
-  const filename = `${randomUUID()}${extension}`;
-  const uploadDir = path.join(process.cwd(), "public", "uploads");
-  await mkdir(uploadDir, { recursive: true });
-  await writeFile(path.join(uploadDir, filename), bytes);
-
-  const url = `/uploads/${filename}`;
+  const key = `uploads/${randomUUID()}${extension}`;
+  const url = await uploadToStorage(key, bytes, file.type);
 
   // Every upload becomes a reusable asset in the media library, regardless of
   // which field it was uploaded from. Best-effort: if the DB isn't
@@ -120,10 +115,8 @@ export async function listMediaAction(): Promise<MediaAsset[]> {
 export async function deleteMediaAssetAction(id: string): Promise<void> {
   await requireAdmin();
   const url = await deleteMediaAsset(id);
-  if (url && url.startsWith("/uploads/")) {
-    const filename = path.basename(url);
-    const filePath = path.join(process.cwd(), "public", "uploads", filename);
-    await unlink(filePath).catch(() => {});
+  if (url) {
+    await deleteFromStorage(url);
   }
   revalidatePath("/admin/media");
 }
