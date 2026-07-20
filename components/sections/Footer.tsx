@@ -1,5 +1,5 @@
 import Image from "next/image";
-import type { FooterContent } from "@/lib/content";
+import { t, type FooterContent, type Locale } from "@/lib/content";
 
 const SOCIAL_LABEL: Record<string, string> = {
   facebook: "Facebook",
@@ -10,7 +10,7 @@ const SOCIAL_LABEL: Record<string, string> = {
   x: "X",
 };
 
-export function Footer({ content }: { content: FooterContent }) {
+export function Footer({ content, locale }: { content: FooterContent; locale: Locale }) {
   return (
     <footer className="bg-deep-blue-dark text-white/80">
       <div className="mx-auto flex max-w-6xl flex-col gap-8 px-6 py-12 sm:flex-row sm:items-start sm:justify-between">
@@ -24,7 +24,7 @@ export function Footer({ content }: { content: FooterContent }) {
           />
           <div>
             <p className="text-lg font-bold text-white">{content.companyName}</p>
-            <p className="mt-1 max-w-xs text-sm text-white/60">{content.tagline}</p>
+            <p className="mt-1 max-w-xs text-sm text-white/60">{t(content.tagline, locale)}</p>
           </div>
         </div>
         <div className="flex flex-col gap-2 text-sm">
@@ -47,7 +47,7 @@ export function Footer({ content }: { content: FooterContent }) {
         </div>
       </div>
       <div className="border-t border-white/10 px-6 py-4 text-center text-xs text-white/50">
-        {content.copyrightText}
+        {t(content.copyrightText, locale)}
       </div>
     </footer>
   );

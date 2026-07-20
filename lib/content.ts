@@ -3,26 +3,51 @@ import { getSql } from "./db";
 
 export type SectionType = "hero" | "highlight" | "features" | "footer" | "canvas";
 
+// --- Localization ------------------------------------------------------
+
+export type Locale = "en" | "ms";
+export const LOCALES: Locale[] = ["en", "ms"];
+export const LOCALE_LABEL: Record<Locale, string> = { en: "English", ms: "Bahasa Melayu" };
+export const DEFAULT_LOCALE: Locale = "en";
+
+export type LocalizedText = Record<Locale, string>;
+
+function lt(en: string, ms: string): LocalizedText {
+  return { en, ms };
+}
+
+/** Reads a localized field, falling back to English if a translation is missing. */
+export function t(text: LocalizedText, locale: Locale): string {
+  return text[locale] || text[DEFAULT_LOCALE] || "";
+}
+
+export function isLocale(value: string | undefined): value is Locale {
+  return value === "en" || value === "ms";
+}
+
+// --- Structured section content ----------------------------------------
+
 export interface HeroContent {
-  eyebrow: string;
-  headline: string;
-  subheadline: string;
-  ctaLabel: string;
+  eyebrow: LocalizedText;
+  headline: LocalizedText;
+  subheadline: LocalizedText;
+  ctaLabel: LocalizedText;
   ctaHref: string;
-  secondaryCtaLabel: string;
+  secondaryCtaLabel: LocalizedText;
   secondaryCtaHref: string;
   mascotImage: string;
 }
 
 export interface HighlightContent {
-  eyebrow: string;
-  script: string;
-  headlineLines: string[];
-  paragraphHeading: string;
-  paragraph: string;
-  quote: string;
-  quoteHighlight: string;
-  signOff: string;
+  eyebrow: LocalizedText;
+  script: LocalizedText;
+  /** One line per row; split into an array with .split("\n") when rendering. */
+  headlineLines: LocalizedText;
+  paragraphHeading: LocalizedText;
+  paragraph: LocalizedText;
+  quote: LocalizedText;
+  quoteHighlight: LocalizedText;
+  signOff: LocalizedText;
   mascotImage: string;
   website: string;
   email: string;
@@ -32,15 +57,15 @@ export interface HighlightContent {
 
 export interface FeatureItem {
   id: string;
-  title: string;
-  description: string;
+  title: LocalizedText;
+  description: LocalizedText;
   icon: string;
 }
 
 export interface FeaturesContent {
-  eyebrow: string;
-  heading: string;
-  subheading: string;
+  eyebrow: LocalizedText;
+  heading: LocalizedText;
+  subheading: LocalizedText;
   items: FeatureItem[];
 }
 
@@ -52,12 +77,12 @@ export interface SocialLink {
 
 export interface FooterContent {
   companyName: string;
-  tagline: string;
+  tagline: LocalizedText;
   website: string;
   email: string;
   phone: string;
   socials: SocialLink[];
-  copyrightText: string;
+  copyrightText: LocalizedText;
 }
 
 // --- Canvas (Canva-style freeform) sections -------------------------------
@@ -88,7 +113,7 @@ interface CanvasElementBase {
 
 export interface TextElement extends CanvasElementBase {
   type: "text";
-  text: string;
+  text: LocalizedText;
   color: string;
   fontWeight: "normal" | "bold";
   align: "left" | "center" | "right";
@@ -98,13 +123,13 @@ export interface TextElement extends CanvasElementBase {
 export interface ImageElement extends CanvasElementBase {
   type: "image";
   src: string;
-  alt: string;
+  alt: LocalizedText;
   radius: number;
 }
 
 export interface ButtonElement extends CanvasElementBase {
   type: "button";
-  label: string;
+  label: LocalizedText;
   href: string;
   bg: string;
   textColor: string;
@@ -167,13 +192,18 @@ export const DEFAULT_SECTIONS: Section[] = [
     order: 0,
     visible: true,
     content: {
-      eyebrow: "Smart Innosys Sdn Bhd",
-      headline: "Smart automation for a sharper business.",
-      subheadline:
+      eyebrow: lt("Smart Innosys Sdn Bhd", "Smart Innosys Sdn Bhd"),
+      headline: lt(
+        "Smart automation for a sharper business.",
+        "Automasi pintar untuk perniagaan yang lebih tajam."
+      ),
+      subheadline: lt(
         "We design and build digital systems, automation, and software that help Malaysian businesses move faster and work smarter.",
-      ctaLabel: "Talk to us",
+        "Kami mereka bentuk dan membina sistem digital, automasi, dan perisian yang membantu perniagaan Malaysia bergerak lebih pantas dan bekerja lebih bijak."
+      ),
+      ctaLabel: lt("Talk to us", "Hubungi kami"),
       ctaHref: "#contact",
-      secondaryCtaLabel: "See what we do",
+      secondaryCtaLabel: lt("See what we do", "Lihat perkhidmatan kami"),
       secondaryCtaHref: "#highlight",
       mascotImage: "/assets/mascot/android-chrome-512x512.png",
     } satisfies HeroContent,
@@ -184,15 +214,20 @@ export const DEFAULT_SECTIONS: Section[] = [
     order: 1,
     visible: true,
     content: {
-      eyebrow: "Smart Innosys Sdn Bhd",
-      script: "Memperkenalkan",
-      headlineLines: ["Rakan digital", "yang membina", "masa depan anda"],
-      paragraphHeading: "Kenapa Smart Innosys?",
-      paragraph:
-        "Kami menggabungkan kepakaran teknologi dengan pemahaman mendalam tentang perniagaan tempatan untuk membina penyelesaian yang benar-benar berfungsi — dari automasi proses sehingga pembangunan sistem tersuai.",
-      quote: "Bersama Smart Innosys, mari kita",
-      quoteHighlight: "terus melangkah ke hadapan.",
-      signOff: "Membina masa depan digital, bersama.",
+      eyebrow: lt("Smart Innosys Sdn Bhd", "Smart Innosys Sdn Bhd"),
+      script: lt("Introducing", "Memperkenalkan"),
+      headlineLines: lt(
+        "Your digital partner\nbuilding your\nfuture forward",
+        "Rakan digital\nyang membina\nmasa depan anda"
+      ),
+      paragraphHeading: lt("Why Smart Innosys?", "Kenapa Smart Innosys?"),
+      paragraph: lt(
+        "We combine technical expertise with a deep understanding of local business to build solutions that genuinely work — from process automation to custom system development.",
+        "Kami menggabungkan kepakaran teknologi dengan pemahaman mendalam tentang perniagaan tempatan untuk membina penyelesaian yang benar-benar berfungsi — dari automasi proses sehingga pembangunan sistem tersuai."
+      ),
+      quote: lt("Together with Smart Innosys, let's keep", "Bersama Smart Innosys, mari kita"),
+      quoteHighlight: lt("moving forward.", "terus melangkah ke hadapan."),
+      signOff: lt("Building a digital future, together.", "Membina masa depan digital, bersama."),
       mascotImage: "/assets/mascot/android-chrome-512x512.png",
       website: "www.smartinnosys.com",
       email: "smartinnosys@gmail.com",
@@ -206,37 +241,50 @@ export const DEFAULT_SECTIONS: Section[] = [
     order: 2,
     visible: true,
     content: {
-      eyebrow: "What we do",
-      heading: "Solutions built around your business",
-      subheading:
+      eyebrow: lt("What we do", "Perkhidmatan kami"),
+      heading: lt(
+        "Solutions built around your business",
+        "Penyelesaian dibina di sekeliling perniagaan anda"
+      ),
+      subheading: lt(
         "From custom software to process automation, we cover the full journey from idea to deployment.",
+        "Dari perisian tersuai hingga automasi proses, kami merangkumi keseluruhan perjalanan dari idea hingga pelaksanaan."
+      ),
       items: [
         {
           id: "f1",
-          title: "Custom Software",
-          description:
+          title: lt("Custom Software", "Perisian Tersuai"),
+          description: lt(
             "Web and mobile applications tailored to how your team actually works.",
+            "Aplikasi web dan mudah alih yang disesuaikan dengan cara pasukan anda benar-benar bekerja."
+          ),
           icon: "code",
         },
         {
           id: "f2",
-          title: "Process Automation",
-          description:
+          title: lt("Process Automation", "Automasi Proses"),
+          description: lt(
             "Cut manual work with automated workflows that save time and reduce errors.",
+            "Kurangkan kerja manual dengan aliran kerja automatik yang menjimatkan masa dan mengurangkan ralat."
+          ),
           icon: "spark",
         },
         {
           id: "f3",
-          title: "Cloud & Infrastructure",
-          description:
+          title: lt("Cloud & Infrastructure", "Awan & Infrastruktur"),
+          description: lt(
             "Reliable, scalable systems that grow with your business.",
+            "Sistem yang boleh dipercayai dan berskala yang berkembang bersama perniagaan anda."
+          ),
           icon: "cloud",
         },
         {
           id: "f4",
-          title: "Consulting",
-          description:
+          title: lt("Consulting", "Perundingan"),
+          description: lt(
             "Strategic guidance to help you choose the right technology, the first time.",
+            "Panduan strategik untuk membantu anda memilih teknologi yang tepat, dari awal lagi."
+          ),
           icon: "chat",
         },
       ],
@@ -254,7 +302,10 @@ export const DEFAULT_SECTIONS: Section[] = [
         {
           id: "demo-text",
           type: "text",
-          text: "Drag, resize, and rotate anything — with layouts that adapt to every screen size.",
+          text: lt(
+            "Drag, resize, and rotate anything — with layouts that adapt to every screen size.",
+            "Seret, ubah saiz, dan putar apa-apa sahaja — dengan reka letak yang menyesuaikan diri dengan semua saiz skrin."
+          ),
           color: "var(--color-deep-blue)",
           fontWeight: "bold",
           align: "left",
@@ -281,7 +332,7 @@ export const DEFAULT_SECTIONS: Section[] = [
         {
           id: "demo-button",
           type: "button",
-          label: "Open the canvas editor →",
+          label: lt("Open the canvas editor →", "Buka editor kanvas →"),
           href: "/admin",
           bg: "var(--color-coral)",
           textColor: "#ffffff",
@@ -302,7 +353,10 @@ export const DEFAULT_SECTIONS: Section[] = [
     visible: true,
     content: {
       companyName: "Smart Innosys Sdn Bhd",
-      tagline: "Smart automation for a sharper business.",
+      tagline: lt(
+        "Smart automation for a sharper business.",
+        "Automasi pintar untuk perniagaan yang lebih tajam."
+      ),
       website: "www.smartinnosys.com",
       email: "smartinnosys@gmail.com",
       phone: "+6012 256 7411",
@@ -311,7 +365,10 @@ export const DEFAULT_SECTIONS: Section[] = [
         { id: "s2", platform: "instagram", href: "https://instagram.com/smartinnosys" },
         { id: "s3", platform: "threads", href: "https://threads.net/@smartinnosys" },
       ],
-      copyrightText: `© ${new Date().getFullYear()} Smart Innosys Sdn Bhd. All rights reserved.`,
+      copyrightText: lt(
+        `© ${new Date().getFullYear()} Smart Innosys Sdn Bhd. All rights reserved.`,
+        `© ${new Date().getFullYear()} Smart Innosys Sdn Bhd. Hak cipta terpelihara.`
+      ),
     } satisfies FooterContent,
   },
 ];
@@ -336,10 +393,10 @@ function ensureReady(): Promise<void> {
       // Insert any default sections that don't exist yet, appending each at
       // the current end of the list (computed at insert time) rather than
       // trusting its static `order` field. That keeps a fresh database in the
-      // intended order while letting a *new* default added later (e.g. the
-      // canvas demo section) land after whatever already exists, instead of
-      // colliding with a row that already occupies that order value. Never
-      // touches rows a user has already edited, so it's safe on every cold start.
+      // intended order while letting a *new* default added later land after
+      // whatever already exists, instead of colliding with a row that already
+      // occupies that order value. Never touches rows a user has already
+      // edited, so it's safe on every cold start.
       for (const section of DEFAULT_SECTIONS) {
         await sql`
           INSERT INTO sections (id, type, "order", visible, content)

@@ -1,12 +1,14 @@
-import { TextField, TextAreaField } from "@/components/admin/Field";
+import { TextField, LocalizedTextField, LocalizedTextAreaField } from "@/components/admin/Field";
 import { ImageDropzone } from "@/components/admin/ImageDropzone";
-import type { HeroContent } from "@/lib/content";
+import type { HeroContent, Locale } from "@/lib/content";
 
 export function HeroEditor({
   content,
+  locale,
   onChange,
 }: {
   content: HeroContent;
+  locale: Locale;
   onChange: (content: HeroContent) => void;
 }) {
   const set = <K extends keyof HeroContent>(key: K, value: HeroContent[K]) =>
@@ -14,22 +16,30 @@ export function HeroEditor({
 
   return (
     <div className="flex flex-col gap-4">
-      <TextField label="Eyebrow" value={content.eyebrow} onChange={(v) => set("eyebrow", v)} />
-      <TextAreaField
+      <LocalizedTextField
+        label="Eyebrow"
+        value={content.eyebrow}
+        locale={locale}
+        onChange={(v) => set("eyebrow", v)}
+      />
+      <LocalizedTextAreaField
         label="Headline"
         value={content.headline}
+        locale={locale}
         onChange={(v) => set("headline", v)}
         rows={2}
       />
-      <TextAreaField
+      <LocalizedTextAreaField
         label="Subheadline"
         value={content.subheadline}
+        locale={locale}
         onChange={(v) => set("subheadline", v)}
       />
       <div className="grid grid-cols-2 gap-3">
-        <TextField
+        <LocalizedTextField
           label="Primary button label"
           value={content.ctaLabel}
+          locale={locale}
           onChange={(v) => set("ctaLabel", v)}
         />
         <TextField
@@ -37,9 +47,10 @@ export function HeroEditor({
           value={content.ctaHref}
           onChange={(v) => set("ctaHref", v)}
         />
-        <TextField
+        <LocalizedTextField
           label="Secondary button label"
           value={content.secondaryCtaLabel}
+          locale={locale}
           onChange={(v) => set("secondaryCtaLabel", v)}
         />
         <TextField

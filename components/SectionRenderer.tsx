@@ -10,27 +10,56 @@ import type {
   FeaturesContent,
   FooterContent,
   CanvasContent,
+  Locale,
 } from "@/lib/content";
 
-export function SectionRenderer({ sections }: { sections: Section[] }) {
+export function SectionRenderer({
+  sections,
+  locale,
+}: {
+  sections: Section[];
+  locale: Locale;
+}) {
   return (
     <>
       {sections.map((section) => {
         switch (section.type) {
           case "hero":
-            return <Hero key={section.id} content={section.content as HeroContent} />;
+            return (
+              <Hero key={section.id} content={section.content as HeroContent} locale={locale} />
+            );
           case "highlight":
             return (
-              <Highlight key={section.id} content={section.content as HighlightContent} />
+              <Highlight
+                key={section.id}
+                content={section.content as HighlightContent}
+                locale={locale}
+              />
             );
           case "features":
             return (
-              <Features key={section.id} content={section.content as FeaturesContent} />
+              <Features
+                key={section.id}
+                content={section.content as FeaturesContent}
+                locale={locale}
+              />
             );
           case "footer":
-            return <Footer key={section.id} content={section.content as FooterContent} />;
+            return (
+              <Footer
+                key={section.id}
+                content={section.content as FooterContent}
+                locale={locale}
+              />
+            );
           case "canvas":
-            return <Canvas key={section.id} content={section.content as CanvasContent} />;
+            return (
+              <Canvas
+                key={section.id}
+                content={section.content as CanvasContent}
+                locale={locale}
+              />
+            );
           default:
             return null;
         }

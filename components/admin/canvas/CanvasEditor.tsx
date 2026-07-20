@@ -9,10 +9,12 @@ import { ElementInspector } from "./ElementInspector";
 import {
   BREAKPOINTS,
   BREAKPOINT_WIDTH,
+  t,
   type Breakpoint,
   type CanvasContent,
   type CanvasElement,
   type ElementLayout,
+  type Locale,
 } from "@/lib/content";
 
 const BREAKPOINT_LABEL: Record<Breakpoint, string> = {
@@ -37,7 +39,7 @@ function newElement(type: CanvasElement["type"]): CanvasElement {
       return {
         id,
         type,
-        text: "New text",
+        text: { en: "New text", ms: "Teks baharu" },
         color: "var(--color-deep-blue)",
         fontWeight: "bold",
         align: "left",
@@ -49,7 +51,7 @@ function newElement(type: CanvasElement["type"]): CanvasElement {
         id,
         type,
         src: "/assets/mascot/android-chrome-512x512.png",
-        alt: "Image",
+        alt: { en: "Image", ms: "Imej" },
         radius: 16,
         layouts,
       };
@@ -57,7 +59,7 @@ function newElement(type: CanvasElement["type"]): CanvasElement {
       return {
         id,
         type,
-        label: "Click me",
+        label: { en: "Click me", ms: "Klik saya" },
         href: "#",
         bg: "var(--color-coral)",
         textColor: "#ffffff",
@@ -79,9 +81,11 @@ function newElement(type: CanvasElement["type"]): CanvasElement {
 
 export function CanvasEditor({
   content,
+  locale,
   onChange,
 }: {
   content: CanvasContent;
+  locale: Locale;
   onChange: (content: CanvasContent) => void;
 }) {
   const [breakpoint, setBreakpoint] = useState<Breakpoint>("desktop");
@@ -213,6 +217,7 @@ export function CanvasEditor({
               index={index}
               selected={selectedId === element.id}
               stageRef={stageRef}
+              locale={locale}
               onSelect={() => setSelectedId(element.id)}
               onLayoutChange={(next) => updateLayout(element.id, next)}
             />
@@ -242,7 +247,7 @@ export function CanvasEditor({
               >
                 <DragHandle />
                 <span className="flex-1 truncate capitalize">
-                  {element.type === "text" ? element.text || "Text" : element.type}
+                  {element.type === "text" ? t(element.text, locale) || "Text" : element.type}
                 </span>
               </button>
             )}
@@ -256,6 +261,7 @@ export function CanvasEditor({
             element={selectedElement}
             layout={selectedElement.layouts[breakpoint]}
             breakpoint={breakpoint}
+            locale={locale}
             onElementChange={(next) => updateElement(selectedElement.id, next)}
             onLayoutChange={(next) => updateLayout(selectedElement.id, next)}
             onDelete={() => removeElement(selectedElement.id)}

@@ -1,4 +1,4 @@
-import type { CanvasElement, ElementLayout } from "@/lib/content";
+import { t, type CanvasElement, type ElementLayout, type Locale } from "@/lib/content";
 
 const ALIGN_CLASS: Record<string, string> = {
   left: "justify-start text-left",
@@ -12,9 +12,11 @@ const ALIGN_CLASS: Record<string, string> = {
 export function ElementContent({
   element,
   layout,
+  locale,
 }: {
   element: CanvasElement;
   layout: ElementLayout;
+  locale: Locale;
 }) {
   switch (element.type) {
     case "text":
@@ -30,7 +32,7 @@ export function ElementContent({
             lineHeight: 1.25,
           }}
         >
-          <span>{element.text}</span>
+          <span>{t(element.text, locale)}</span>
         </div>
       );
     case "image":
@@ -38,7 +40,7 @@ export function ElementContent({
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={element.src}
-          alt={element.alt}
+          alt={t(element.alt, locale)}
           className="h-full w-full"
           style={{ objectFit: "cover", borderRadius: element.radius }}
         />
@@ -55,7 +57,7 @@ export function ElementContent({
             fontSize: layout.fontSize ?? 14,
           }}
         >
-          {element.label}
+          {t(element.label, locale)}
         </a>
       );
     case "shape":

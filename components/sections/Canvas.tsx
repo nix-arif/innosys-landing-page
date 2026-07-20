@@ -1,5 +1,5 @@
 import { ElementContent } from "@/components/canvas/ElementContent";
-import { BREAKPOINTS, type Breakpoint, type CanvasContent } from "@/lib/content";
+import { BREAKPOINTS, type Breakpoint, type CanvasContent, type Locale } from "@/lib/content";
 
 // Matches Tailwind's default sm/md/lg breakpoints so the three variants below
 // hand off to each other with no gap or overlap.
@@ -9,7 +9,7 @@ const VISIBILITY: Record<Breakpoint, string> = {
   desktop: "hidden lg:block",
 };
 
-export function Canvas({ content }: { content: CanvasContent }) {
+export function Canvas({ content, locale }: { content: CanvasContent; locale: Locale }) {
   return (
     <section className="relative w-full">
       {BREAKPOINTS.map((breakpoint) => (
@@ -34,7 +34,7 @@ export function Canvas({ content }: { content: CanvasContent }) {
                   zIndex: index,
                 }}
               >
-                <ElementContent element={element} layout={layout} />
+                <ElementContent element={element} layout={layout} locale={locale} />
               </div>
             );
           })}

@@ -3,7 +3,7 @@ import { DotGrid } from "@/components/decor/DotGrid";
 import { Skyline } from "@/components/decor/Skyline";
 import { WaveDivider } from "@/components/decor/WaveDivider";
 import { QuoteMark } from "@/components/decor/QuoteMark";
-import type { HighlightContent } from "@/lib/content";
+import { t, type HighlightContent, type Locale } from "@/lib/content";
 
 function GlobeIcon() {
   return (
@@ -37,32 +37,36 @@ function AtIcon() {
   );
 }
 
-export function Highlight({ content }: { content: HighlightContent }) {
+export function Highlight({ content, locale }: { content: HighlightContent; locale: Locale }) {
   return (
     <section id="highlight" className="relative overflow-hidden bg-white">
       <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-10 px-6 pb-16 pt-20 md:grid-cols-2">
         <div className="relative z-10">
           <p className="text-sm font-bold uppercase tracking-wide text-deep-blue">
-            {content.eyebrow}
+            {t(content.eyebrow, locale)}
           </p>
           <p className="-mt-1 font-script text-3xl text-sky-blue sm:text-4xl">
-            {content.script}
+            {t(content.script, locale)}
           </p>
           <h2 className="mt-2 text-4xl font-extrabold leading-[1.05] text-deep-blue sm:text-5xl">
-            {content.headlineLines.map((line, i) => (
-              <span key={i} className="block">
-                {line}
-              </span>
-            ))}
+            {t(content.headlineLines, locale)
+              .split("\n")
+              .map((line, i) => (
+                <span key={i} className="block">
+                  {line}
+                </span>
+              ))}
           </h2>
           <div className="mt-5 flex gap-1.5">
             <span className="h-1.5 w-10 rounded-full bg-deep-blue" />
             <span className="h-1.5 w-6 rounded-full bg-coral" />
             <span className="h-1.5 w-4 rounded-full bg-coral-light" />
           </div>
-          <h3 className="mt-6 font-bold text-sky-blue">{content.paragraphHeading}</h3>
+          <h3 className="mt-6 font-bold text-sky-blue">
+            {t(content.paragraphHeading, locale)}
+          </h3>
           <p className="mt-2 max-w-md leading-relaxed text-deep-blue/70">
-            {content.paragraph}
+            {t(content.paragraph, locale)}
           </p>
         </div>
 
@@ -101,11 +105,11 @@ export function Highlight({ content }: { content: HighlightContent }) {
           <div className="mx-auto max-w-3xl px-6 text-center text-white">
             <QuoteMark color="var(--color-coral)" className="mx-auto h-9 w-12 opacity-90" />
             <p className="mt-4 text-xl font-semibold sm:text-2xl">
-              {content.quote}{" "}
-              <span className="text-sky-blue-light">{content.quoteHighlight}</span>
+              {t(content.quote, locale)}{" "}
+              <span className="text-sky-blue-light">{t(content.quoteHighlight, locale)}</span>
             </p>
             <p className="mt-4 font-script text-2xl text-white/90 sm:text-3xl">
-              {content.signOff}
+              {t(content.signOff, locale)}
             </p>
           </div>
         </div>

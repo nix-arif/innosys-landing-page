@@ -1,16 +1,18 @@
 import { randomUUID } from "@/components/admin/randomId";
-import { TextField } from "@/components/admin/Field";
+import { TextField, LocalizedTextField } from "@/components/admin/Field";
 import { DragList } from "@/components/admin/DragList";
 import { DragHandle } from "@/components/admin/DragHandle";
-import type { FooterContent, SocialLink } from "@/lib/content";
+import type { FooterContent, SocialLink, Locale } from "@/lib/content";
 
 const PLATFORMS = ["facebook", "instagram", "threads", "linkedin", "tiktok", "x"];
 
 export function FooterEditor({
   content,
+  locale,
   onChange,
 }: {
   content: FooterContent;
+  locale: Locale;
   onChange: (content: FooterContent) => void;
 }) {
   const set = <K extends keyof FooterContent>(key: K, value: FooterContent[K]) =>
@@ -35,7 +37,12 @@ export function FooterEditor({
         value={content.companyName}
         onChange={(v) => set("companyName", v)}
       />
-      <TextField label="Tagline" value={content.tagline} onChange={(v) => set("tagline", v)} />
+      <LocalizedTextField
+        label="Tagline"
+        value={content.tagline}
+        locale={locale}
+        onChange={(v) => set("tagline", v)}
+      />
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <TextField label="Website" value={content.website} onChange={(v) => set("website", v)} />
         <TextField label="Email" value={content.email} onChange={(v) => set("email", v)} />
@@ -91,9 +98,10 @@ export function FooterEditor({
         </button>
       </div>
 
-      <TextField
+      <LocalizedTextField
         label="Copyright text"
         value={content.copyrightText}
+        locale={locale}
         onChange={(v) => set("copyrightText", v)}
       />
     </div>

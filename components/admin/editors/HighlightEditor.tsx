@@ -1,12 +1,14 @@
-import { TextField, TextAreaField } from "@/components/admin/Field";
+import { TextField, LocalizedTextField, LocalizedTextAreaField } from "@/components/admin/Field";
 import { ImageDropzone } from "@/components/admin/ImageDropzone";
-import type { HighlightContent } from "@/lib/content";
+import type { HighlightContent, Locale } from "@/lib/content";
 
 export function HighlightEditor({
   content,
+  locale,
   onChange,
 }: {
   content: HighlightContent;
+  locale: Locale;
   onChange: (content: HighlightContent) => void;
 }) {
   const set = <K extends keyof HighlightContent>(key: K, value: HighlightContent[K]) =>
@@ -14,40 +16,56 @@ export function HighlightEditor({
 
   return (
     <div className="flex flex-col gap-4">
-      <TextField label="Eyebrow (company name)" value={content.eyebrow} onChange={(v) => set("eyebrow", v)} />
-      <TextField
+      <LocalizedTextField
+        label="Eyebrow (company name)"
+        value={content.eyebrow}
+        locale={locale}
+        onChange={(v) => set("eyebrow", v)}
+      />
+      <LocalizedTextField
         label="Script line (cursive)"
         value={content.script}
+        locale={locale}
         onChange={(v) => set("script", v)}
       />
-      <TextAreaField
+      <LocalizedTextAreaField
         label="Headline (one line per row)"
-        value={content.headlineLines.join("\n")}
-        onChange={(v) => set("headlineLines", v.split("\n"))}
+        value={content.headlineLines}
+        locale={locale}
+        onChange={(v) => set("headlineLines", v)}
         rows={3}
       />
-      <TextField
+      <LocalizedTextField
         label="Paragraph heading"
         value={content.paragraphHeading}
+        locale={locale}
         onChange={(v) => set("paragraphHeading", v)}
       />
-      <TextAreaField
+      <LocalizedTextAreaField
         label="Paragraph"
         value={content.paragraph}
+        locale={locale}
         onChange={(v) => set("paragraph", v)}
         rows={4}
       />
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <TextField label="Quote (plain part)" value={content.quote} onChange={(v) => set("quote", v)} />
-        <TextField
+        <LocalizedTextField
+          label="Quote (plain part)"
+          value={content.quote}
+          locale={locale}
+          onChange={(v) => set("quote", v)}
+        />
+        <LocalizedTextField
           label="Quote (highlighted part)"
           value={content.quoteHighlight}
+          locale={locale}
           onChange={(v) => set("quoteHighlight", v)}
         />
       </div>
-      <TextField
+      <LocalizedTextField
         label="Sign-off line (cursive)"
         value={content.signOff}
+        locale={locale}
         onChange={(v) => set("signOff", v)}
       />
       <ImageDropzone

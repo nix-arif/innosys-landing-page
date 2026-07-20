@@ -1,8 +1,8 @@
 import Image from "next/image";
 import { DotGrid } from "@/components/decor/DotGrid";
-import type { HeroContent } from "@/lib/content";
+import { t, type HeroContent, type Locale } from "@/lib/content";
 
-export function Hero({ content }: { content: HeroContent }) {
+export function Hero({ content, locale }: { content: HeroContent; locale: Locale }) {
   return (
     <section
       id="home"
@@ -15,26 +15,26 @@ export function Hero({ content }: { content: HeroContent }) {
       <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-10 px-6 py-20 sm:py-28 md:grid-cols-2">
         <div>
           <p className="text-sm font-semibold uppercase tracking-wide text-coral">
-            {content.eyebrow}
+            {t(content.eyebrow, locale)}
           </p>
           <h1 className="mt-3 text-4xl font-extrabold leading-tight text-deep-blue sm:text-5xl">
-            {content.headline}
+            {t(content.headline, locale)}
           </h1>
           <p className="mt-5 max-w-lg text-lg text-deep-blue/70">
-            {content.subheadline}
+            {t(content.subheadline, locale)}
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
             <a
               href={content.ctaHref}
               className="rounded-full bg-coral px-6 py-3 font-semibold text-white shadow-lg shadow-coral/30 transition-transform hover:-translate-y-0.5"
             >
-              {content.ctaLabel}
+              {t(content.ctaLabel, locale)}
             </a>
             <a
               href={content.secondaryCtaHref}
               className="rounded-full border-2 border-deep-blue px-6 py-3 font-semibold text-deep-blue transition-colors hover:bg-deep-blue hover:text-white"
             >
-              {content.secondaryCtaLabel}
+              {t(content.secondaryCtaLabel, locale)}
             </a>
           </div>
         </div>

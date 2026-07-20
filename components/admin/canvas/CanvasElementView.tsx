@@ -2,7 +2,7 @@
 
 import { useRef, type RefObject } from "react";
 import { ElementContent } from "@/components/canvas/ElementContent";
-import type { CanvasElement, ElementLayout } from "@/lib/content";
+import type { CanvasElement, ElementLayout, Locale } from "@/lib/content";
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), Math.max(min, max));
@@ -16,6 +16,7 @@ export function CanvasElementView({
   index,
   selected,
   stageRef,
+  locale,
   onSelect,
   onLayoutChange,
 }: {
@@ -24,6 +25,7 @@ export function CanvasElementView({
   index: number;
   selected: boolean;
   stageRef: RefObject<HTMLDivElement | null>;
+  locale: Locale;
   onSelect: () => void;
   onLayoutChange: (layout: ElementLayout) => void;
 }) {
@@ -114,7 +116,7 @@ export function CanvasElementView({
         zIndex: index,
       }}
     >
-      <ElementContent element={element} layout={layout} />
+      <ElementContent element={element} layout={layout} locale={locale} />
       {selected && (
         <>
           <div

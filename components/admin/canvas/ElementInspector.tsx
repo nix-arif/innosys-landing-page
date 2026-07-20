@@ -1,12 +1,13 @@
-import { TextField, TextAreaField } from "@/components/admin/Field";
+import { TextField, LocalizedTextField, LocalizedTextAreaField } from "@/components/admin/Field";
 import { ImageDropzone } from "@/components/admin/ImageDropzone";
 import { ColorSwatches } from "./ColorSwatches";
-import type { Breakpoint, CanvasElement, ElementLayout } from "@/lib/content";
+import type { Breakpoint, CanvasElement, ElementLayout, Locale } from "@/lib/content";
 
 export function ElementInspector({
   element,
   layout,
   breakpoint,
+  locale,
   onElementChange,
   onLayoutChange,
   onDelete,
@@ -14,6 +15,7 @@ export function ElementInspector({
   element: CanvasElement;
   layout: ElementLayout;
   breakpoint: Breakpoint;
+  locale: Locale;
   onElementChange: (element: CanvasElement) => void;
   onLayoutChange: (layout: ElementLayout) => void;
   onDelete: () => void;
@@ -35,9 +37,10 @@ export function ElementInspector({
 
       {element.type === "text" && (
         <>
-          <TextAreaField
+          <LocalizedTextAreaField
             label="Text"
             value={element.text}
+            locale={locale}
             onChange={(v) => onElementChange({ ...element, text: v })}
           />
           <div className="grid grid-cols-2 gap-3">
@@ -123,9 +126,10 @@ export function ElementInspector({
             value={element.src}
             onChange={(url) => onElementChange({ ...element, src: url })}
           />
-          <TextField
+          <LocalizedTextField
             label="Alt text"
             value={element.alt}
+            locale={locale}
             onChange={(v) => onElementChange({ ...element, alt: v })}
           />
           <label className="block">
@@ -148,9 +152,10 @@ export function ElementInspector({
 
       {element.type === "button" && (
         <>
-          <TextField
+          <LocalizedTextField
             label="Label"
             value={element.label}
+            locale={locale}
             onChange={(v) => onElementChange({ ...element, label: v })}
           />
           <TextField

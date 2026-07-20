@@ -1,15 +1,17 @@
 import { randomUUID } from "@/components/admin/randomId";
-import { TextField, TextAreaField } from "@/components/admin/Field";
+import { LocalizedTextField, LocalizedTextAreaField } from "@/components/admin/Field";
 import { DragList } from "@/components/admin/DragList";
 import { DragHandle } from "@/components/admin/DragHandle";
 import { ICON_KEYS } from "@/components/decor/Icon";
-import type { FeaturesContent, FeatureItem } from "@/lib/content";
+import type { FeaturesContent, FeatureItem, Locale } from "@/lib/content";
 
 export function FeaturesEditor({
   content,
+  locale,
   onChange,
 }: {
   content: FeaturesContent;
+  locale: Locale;
   onChange: (content: FeaturesContent) => void;
 }) {
   const set = <K extends keyof FeaturesContent>(key: K, value: FeaturesContent[K]) =>
@@ -24,7 +26,12 @@ export function FeaturesEditor({
   const addItem = () =>
     set("items", [
       ...content.items,
-      { id: randomUUID(), title: "New service", description: "", icon: "spark" },
+      {
+        id: randomUUID(),
+        title: { en: "New service", ms: "Perkhidmatan baharu" },
+        description: { en: "", ms: "" },
+        icon: "spark",
+      },
     ]);
 
   const removeItem = (id: string) =>
@@ -32,11 +39,22 @@ export function FeaturesEditor({
 
   return (
     <div className="flex flex-col gap-4">
-      <TextField label="Eyebrow" value={content.eyebrow} onChange={(v) => set("eyebrow", v)} />
-      <TextField label="Heading" value={content.heading} onChange={(v) => set("heading", v)} />
-      <TextAreaField
+      <LocalizedTextField
+        label="Eyebrow"
+        value={content.eyebrow}
+        locale={locale}
+        onChange={(v) => set("eyebrow", v)}
+      />
+      <LocalizedTextField
+        label="Heading"
+        value={content.heading}
+        locale={locale}
+        onChange={(v) => set("heading", v)}
+      />
+      <LocalizedTextAreaField
         label="Subheading"
         value={content.subheading}
+        locale={locale}
         onChange={(v) => set("subheading", v)}
       />
 
@@ -55,8 +73,10 @@ export function FeaturesEditor({
               <div className="flex items-center gap-2">
                 <DragHandle />
                 <input
-                  value={item.title}
-                  onChange={(event) => setItem(item.id, { title: event.target.value })}
+                  value={item.title[locale] ?? ""}
+                  onChange={(event) =>
+                    setItem(item.id, { title: { ...item.title, [locale]: event.target.value } })
+                  }
                   className="flex-1 rounded-lg border border-deep-blue/20 px-2 py-1 text-sm font-semibold outline-none focus:border-sky-blue"
                   placeholder="Title"
                 />
@@ -80,8 +100,12 @@ export function FeaturesEditor({
                 </button>
               </div>
               <textarea
-                value={item.description}
-                onChange={(event) => setItem(item.id, { description: event.target.value })}
+                value={item.description[locale] ?? ""}
+                onChange={(event) =>
+                  setItem(item.id, {
+                    description: { ...item.description, [locale]: event.target.value },
+                  })
+                }
                 rows={2}
                 placeholder="Description"
                 className="w-full resize-y rounded-lg border border-deep-blue/20 px-2 py-1 text-sm outline-none focus:border-sky-blue"
