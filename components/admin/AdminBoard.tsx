@@ -80,8 +80,8 @@ export function AdminBoard({
   }
 
   return (
-    <div className="flex min-h-screen bg-sky-blue-light/10">
-      <aside className="flex w-72 shrink-0 flex-col border-r border-deep-blue/10 bg-white">
+    <div className="flex h-screen bg-sky-blue-light/10">
+      <aside className="flex w-72 shrink-0 flex-col overflow-y-auto border-r border-deep-blue/10 bg-white">
         <div className="flex items-center justify-between border-b border-deep-blue/10 p-4">
           <p className="font-bold text-deep-blue">Sections</p>
           <form action={logout}>
@@ -186,11 +186,11 @@ export function AdminBoard({
         </div>
       </aside>
 
-      <main className="flex-1 overflow-y-auto p-8">
+      <main className="flex flex-1 flex-col overflow-hidden">
         {selected ? (
           <SectionEditorPanel key={selected.id} section={selected} dbConfigured={dbConfigured} />
         ) : (
-          <p className="text-deep-blue/60">Select a section to edit.</p>
+          <p className="p-8 text-deep-blue/60">Select a section to edit.</p>
         )}
       </main>
     </div>
