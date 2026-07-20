@@ -152,8 +152,12 @@ export interface Section<T extends SectionContent = SectionContent> {
   content: T;
 }
 
-function sameForAllBreakpoints(layout: ElementLayout): Record<Breakpoint, ElementLayout> {
-  return { desktop: { ...layout }, tablet: { ...layout }, mobile: { ...layout } };
+function perBreakpoint(
+  desktop: ElementLayout,
+  tablet: ElementLayout,
+  mobile: ElementLayout
+): Record<Breakpoint, ElementLayout> {
+  return { desktop, tablet, mobile };
 }
 
 export const DEFAULT_SECTIONS: Section[] = [
@@ -250,19 +254,16 @@ export const DEFAULT_SECTIONS: Section[] = [
         {
           id: "demo-text",
           type: "text",
-          text: "Design any section exactly the way you want — drag, resize, and rotate freely, with independent layouts for desktop, tablet, and mobile.",
+          text: "Drag, resize, and rotate anything — with layouts that adapt to every screen size.",
           color: "var(--color-deep-blue)",
           fontWeight: "bold",
           align: "left",
           fontFamily: "sans",
-          layouts: sameForAllBreakpoints({
-            x: 8,
-            y: 30,
-            width: 54,
-            height: 36,
-            rotation: 0,
-            fontSize: 24,
-          }),
+          layouts: perBreakpoint(
+            { x: 8, y: 26, width: 50, height: 40, rotation: 0, fontSize: 22 },
+            { x: 8, y: 22, width: 56, height: 38, rotation: 0, fontSize: 20 },
+            { x: 8, y: 8, width: 84, height: 34, rotation: 0, fontSize: 17 }
+          ),
         },
         {
           id: "demo-shape",
@@ -271,13 +272,11 @@ export const DEFAULT_SECTIONS: Section[] = [
           fill: "var(--color-sky-blue)",
           opacity: 0.22,
           radius: 999,
-          layouts: sameForAllBreakpoints({
-            x: 66,
-            y: 5,
-            width: 30,
-            height: 90,
-            rotation: 0,
-          }),
+          layouts: perBreakpoint(
+            { x: 66, y: 5, width: 30, height: 90, rotation: 0 },
+            { x: 68, y: 8, width: 28, height: 80, rotation: 0 },
+            { x: 54, y: 56, width: 44, height: 38, rotation: 0 }
+          ),
         },
         {
           id: "demo-button",
@@ -287,14 +286,11 @@ export const DEFAULT_SECTIONS: Section[] = [
           bg: "var(--color-coral)",
           textColor: "#ffffff",
           radius: 999,
-          layouts: sameForAllBreakpoints({
-            x: 8,
-            y: 72,
-            width: 34,
-            height: 12,
-            rotation: 0,
-            fontSize: 14,
-          }),
+          layouts: perBreakpoint(
+            { x: 8, y: 76, width: 34, height: 12, rotation: 0, fontSize: 14 },
+            { x: 8, y: 70, width: 38, height: 12, rotation: 0, fontSize: 14 },
+            { x: 8, y: 80, width: 56, height: 10, rotation: 0, fontSize: 13 }
+          ),
         },
       ],
     } satisfies CanvasContent,
@@ -337,21 +333,23 @@ function ensureReady(): Promise<void> {
           updated_at timestamptz NOT NULL DEFAULT now()
         )
       `;
-      // Insert any default sections that don't exist yet. ON CONFLICT DO NOTHING
-      // means this never touches rows a user has already edited, so it's safe
-      // to run on every cold start (and lets us add new defaults later, like
-      // the canvas demo section, without clobbering existing databases).
+      // Insert any default sections that don't exist yet, appending each at
+      // the current end of the list (computed at insert time) rather than
+      // trusting its static `order` field. That keeps a fresh database in the
+      // intended order while letting a *new* default added later (e.g. the
+      // canvas demo section) land after whatever already exists, instead of
+      // colliding with a row that already occupies that order value. Never
+      // touches rows a user has already edited, so it's safe on every cold start.
       for (const section of DEFAULT_SECTIONS) {
         await sql`
           INSERT INTO sections (id, type, "order", visible, content)
-          VALUES (
+          SELECT
             ${section.id},
             ${section.type},
-            ${section.order},
+            COALESCE((SELECT MAX("order") FROM sections), -1) + 1,
             ${section.visible},
             ${JSON.stringify(section.content)}::jsonb
-          )
-          ON CONFLICT (id) DO NOTHING
+          WHERE NOT EXISTS (SELECT 1 FROM sections WHERE id = ${section.id})
         `;
       }
     })();

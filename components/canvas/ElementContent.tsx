@@ -20,7 +20,7 @@ export function ElementContent({
     case "text":
       return (
         <div
-          className={`flex h-full w-full items-start overflow-hidden ${ALIGN_CLASS[element.align]}`}
+          className={`flex h-full w-full items-start ${ALIGN_CLASS[element.align]}`}
           style={{
             color: element.color,
             fontWeight: element.fontWeight === "bold" ? 700 : 400,
