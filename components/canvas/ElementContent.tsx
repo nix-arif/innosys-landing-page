@@ -13,10 +13,13 @@ export function ElementContent({
   element,
   layout,
   locale,
+  interactive = true,
 }: {
   element: CanvasElement;
   layout: ElementLayout;
   locale: Locale;
+  /** Set to false in the admin editor so a button's link doesn't navigate away while editing. */
+  interactive?: boolean;
 }) {
   switch (element.type) {
     case "text":
@@ -30,6 +33,7 @@ export function ElementContent({
             fontFamily:
               element.fontFamily === "script" ? "var(--font-script)" : "var(--font-sans)",
             lineHeight: 1.25,
+            whiteSpace: "pre-wrap",
           }}
         >
           <span>{t(element.text, locale)}</span>
@@ -42,13 +46,14 @@ export function ElementContent({
           src={element.src}
           alt={t(element.alt, locale)}
           className="h-full w-full"
-          style={{ objectFit: "cover", borderRadius: element.radius }}
+          style={{ objectFit: element.objectFit ?? "cover", borderRadius: element.radius }}
         />
       );
     case "button":
       return (
         <a
           href={element.href}
+          onClick={interactive ? undefined : (event) => event.preventDefault()}
           className="flex h-full w-full items-center justify-center px-3 text-center font-semibold no-underline"
           style={{
             background: element.bg,

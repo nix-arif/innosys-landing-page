@@ -65,6 +65,8 @@ function newElement(type: CanvasElement["type"]): CanvasElement {
 export function useCanvasEditor(content: CanvasContent, onChange: (content: CanvasContent) => void) {
   const [breakpoint, setBreakpoint] = useState<Breakpoint>("desktop");
   const [selectedId, setSelectedId] = useState<string | null>(content.elements[0]?.id ?? null);
+  const [gridEnabled, setGridEnabled] = useState(true);
+  const [gridSize, setGridSize] = useState(5);
   const stageRef = useRef<HTMLDivElement>(null);
 
   const selectedElement = content.elements.find((el) => el.id === selectedId) ?? null;
@@ -120,6 +122,10 @@ export function useCanvasEditor(content: CanvasContent, onChange: (content: Canv
     setBreakpoint,
     selectedId,
     setSelectedId,
+    gridEnabled,
+    setGridEnabled,
+    gridSize,
+    setGridSize,
     stageRef,
     selectedElement,
     setElements,

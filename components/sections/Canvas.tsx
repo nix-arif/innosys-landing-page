@@ -1,5 +1,11 @@
 import { ElementContent } from "@/components/canvas/ElementContent";
-import { BREAKPOINTS, type Breakpoint, type CanvasContent, type Locale } from "@/lib/content";
+import {
+  BREAKPOINTS,
+  BREAKPOINT_WIDTH,
+  type Breakpoint,
+  type CanvasContent,
+  type Locale,
+} from "@/lib/content";
 
 // Matches Tailwind's default sm/md/lg breakpoints so the three variants below
 // hand off to each other with no gap or overlap.
@@ -16,7 +22,10 @@ export function Canvas({ content, locale }: { content: CanvasContent; locale: Lo
         <div
           key={breakpoint}
           className={`relative w-full overflow-hidden ${VISIBILITY[breakpoint]}`}
-          style={{ height: content.heightPx[breakpoint], background: content.background }}
+          style={{
+            aspectRatio: `${BREAKPOINT_WIDTH[breakpoint]} / ${content.heightPx[breakpoint]}`,
+            background: content.background,
+          }}
         >
           {content.elements.map((element, index) => {
             const layout = element.layouts[breakpoint];

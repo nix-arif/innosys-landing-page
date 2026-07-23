@@ -120,11 +120,15 @@ export interface TextElement extends CanvasElementBase {
   fontFamily: "sans" | "script";
 }
 
+export type ImageObjectFit = "cover" | "contain" | "fill" | "none" | "scale-down";
+
 export interface ImageElement extends CanvasElementBase {
   type: "image";
   src: string;
   alt: LocalizedText;
   radius: number;
+  /** CSS object-fit for how the image fills its box; defaults to "cover" when unset. */
+  objectFit?: ImageObjectFit;
 }
 
 export interface ButtonElement extends CanvasElementBase {

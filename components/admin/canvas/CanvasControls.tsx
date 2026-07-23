@@ -2,6 +2,7 @@
 
 import { DragList } from "@/components/admin/DragList";
 import { DragHandle } from "@/components/admin/DragHandle";
+import { AlignmentToolbar } from "./AlignmentToolbar";
 import { ElementInspector } from "./ElementInspector";
 import {
   t,
@@ -83,6 +84,15 @@ export function CanvasControls({
           />
         )}
       </div>
+
+      {selectedElement && (
+        <div className="rounded-2xl border border-deep-blue/10 bg-white p-4">
+          <AlignmentToolbar
+            layout={selectedElement.layouts[breakpoint]}
+            onLayoutChange={onLayoutChange}
+          />
+        </div>
+      )}
 
       {selectedElement && (
         <div className="rounded-2xl border border-deep-blue/10 bg-white p-4">

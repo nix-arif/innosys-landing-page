@@ -1,7 +1,7 @@
 "use client";
 
-import type { RefObject } from "react";
-import { CanvasElementView } from "./CanvasElementView";
+import { useState, type RefObject } from "react";
+import { CanvasElementView, type Guide } from "./CanvasElementView";
 import {
   BREAKPOINTS,
   BREAKPOINT_WIDTH,
@@ -17,6 +17,8 @@ const BREAKPOINT_LABEL: Record<Breakpoint, string> = {
   mobile: "Mobile",
 };
 
+const GRID_SIZE_OPTIONS = [2, 5, 10, 20];
+
 export function CanvasStage({
   content,
   breakpoint,
@@ -24,6 +26,10 @@ export function CanvasStage({
   selectedId,
   stageRef,
   locale,
+  gridEnabled,
+  setGridEnabled,
+  gridSize,
+  setGridSize,
   onSelect,
   onLayoutChange,
   onDeselect,
@@ -37,6 +43,10 @@ export function CanvasStage({
   selectedId: string | null;
   stageRef: RefObject<HTMLDivElement | null>;
   locale: Locale;
+  gridEnabled: boolean;
+  setGridEnabled: (enabled: boolean) => void;
+  gridSize: number;
+  setGridSize: (size: number) => void;
   onSelect: (id: string) => void;
   onLayoutChange: (id: string, layout: ElementLayout) => void;
   onDeselect: () => void;
@@ -44,6 +54,7 @@ export function CanvasStage({
   onBackgroundChange: (color: string) => void;
   onCopyDesktopLayout: () => void;
 }) {
+  const [guides, setGuides] = useState<Guide[]>([]);
   return (
     <div className="flex h-full flex-col">
       <div className="flex flex-wrap items-center gap-3 border-b border-deep-blue/10 bg-white px-6 py-3">
@@ -73,6 +84,27 @@ export function CanvasStage({
           </button>
         )}
         <label className="ml-auto flex items-center gap-2 text-xs font-semibold text-deep-blue/70">
+          <input
+            type="checkbox"
+            checked={gridEnabled}
+            onChange={(event) => setGridEnabled(event.target.checked)}
+          />
+          Grid & snap
+        </label>
+        {gridEnabled && (
+          <select
+            value={gridSize}
+            onChange={(event) => setGridSize(Number(event.target.value))}
+            className="rounded-lg border border-deep-blue/20 px-2 py-1 text-xs font-semibold text-deep-blue/70"
+          >
+            {GRID_SIZE_OPTIONS.map((size) => (
+              <option key={size} value={size}>
+                {size}%
+              </option>
+            ))}
+          </select>
+        )}
+        <label className="flex items-center gap-2 text-xs font-semibold text-deep-blue/70">
           Height
           <input
             type="number"
@@ -104,6 +136,16 @@ export function CanvasStage({
             background: content.background,
           }}
         >
+          {gridEnabled && (
+            <div
+              className="pointer-events-none absolute inset-0"
+              style={{
+                backgroundImage:
+                  "linear-gradient(to right, rgba(15,23,42,0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(15,23,42,0.08) 1px, transparent 1px)",
+                backgroundSize: `${gridSize}% ${gridSize}%`,
+              }}
+            />
+          )}
           {content.elements.map((element, index) => (
             <CanvasElementView
               key={element.id}
@@ -113,8 +155,25 @@ export function CanvasStage({
               selected={selectedId === element.id}
               stageRef={stageRef}
               locale={locale}
+              gridEnabled={gridEnabled}
+              gridSize={gridSize}
+              siblingLayouts={content.elements
+                .filter((other) => other.id !== element.id)
+                .map((other) => other.layouts[breakpoint])}
               onSelect={() => onSelect(element.id)}
               onLayoutChange={(next) => onLayoutChange(element.id, next)}
+              onGuidesChange={setGuides}
+            />
+          ))}
+          {guides.map((guide, i) => (
+            <div
+              key={i}
+              className="pointer-events-none absolute bg-coral"
+              style={
+                guide.axis === "x"
+                  ? { left: `${guide.position}%`, top: 0, bottom: 0, width: "1px" }
+                  : { top: `${guide.position}%`, left: 0, right: 0, height: "1px" }
+              }
             />
           ))}
           {content.elements.length === 0 && (

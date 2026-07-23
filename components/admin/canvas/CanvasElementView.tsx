@@ -10,6 +10,51 @@ function clamp(value: number, min: number, max: number) {
 
 type DragMode = "move" | "resize" | "rotate";
 
+/** A snap line to render on the stage while dragging/resizing, in % of stage size. */
+export interface Guide {
+  axis: "x" | "y";
+  position: number;
+}
+
+const SNAP_TOLERANCE = 1;
+
+/** Candidate snap lines along one axis: canvas edges/center, sibling element edges/centers, and grid lines. */
+function buildAxisCandidates(
+  axis: "x" | "y",
+  siblingLayouts: ElementLayout[],
+  gridEnabled: boolean,
+  gridSize: number
+): number[] {
+  const candidates = [0, 50, 100];
+  for (const sibling of siblingLayouts) {
+    const start = axis === "x" ? sibling.x : sibling.y;
+    const size = axis === "x" ? sibling.width : sibling.height;
+    candidates.push(start, start + size / 2, start + size);
+  }
+  if (gridEnabled) {
+    for (let line = 0; line <= 100; line += gridSize) candidates.push(line);
+  }
+  return candidates;
+}
+
+/** Finds the candidate line closest to any reference point, within tolerance. */
+function findSnap(
+  references: number[],
+  candidates: number[],
+  tolerance: number
+): { delta: number; line: number } | null {
+  let best: { delta: number; line: number } | null = null;
+  for (const ref of references) {
+    for (const line of candidates) {
+      const delta = line - ref;
+      if (Math.abs(delta) < tolerance && (!best || Math.abs(delta) < Math.abs(best.delta))) {
+        best = { delta, line };
+      }
+    }
+  }
+  return best;
+}
+
 export function CanvasElementView({
   element,
   layout,
@@ -17,8 +62,12 @@ export function CanvasElementView({
   selected,
   stageRef,
   locale,
+  gridEnabled,
+  gridSize,
+  siblingLayouts,
   onSelect,
   onLayoutChange,
+  onGuidesChange,
 }: {
   element: CanvasElement;
   layout: ElementLayout;
@@ -26,8 +75,12 @@ export function CanvasElementView({
   selected: boolean;
   stageRef: RefObject<HTMLDivElement | null>;
   locale: Locale;
+  gridEnabled: boolean;
+  gridSize: number;
+  siblingLayouts: ElementLayout[];
   onSelect: () => void;
   onLayoutChange: (layout: ElementLayout) => void;
+  onGuidesChange: (guides: Guide[]) => void;
 }) {
   const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -42,6 +95,8 @@ export function CanvasElementView({
     const rect = wrapperRef.current?.getBoundingClientRect();
     const centerX = rect ? rect.left + rect.width / 2 : startX;
     const centerY = rect ? rect.top + rect.height / 2 : startY;
+    const xCandidates = buildAxisCandidates("x", siblingLayouts, gridEnabled, gridSize);
+    const yCandidates = buildAxisCandidates("y", siblingLayouts, gridEnabled, gridSize);
 
     function handleMove(moveEvent: PointerEvent) {
       const stageRect = stageRef.current?.getBoundingClientRect();
@@ -52,14 +107,48 @@ export function CanvasElementView({
       if (mode === "move") {
         let x = clamp(startLayout.x + dxPct, 0, 100 - startLayout.width);
         let y = clamp(startLayout.y + dyPct, 0, 100 - startLayout.height);
-        const centerXPct = x + startLayout.width / 2;
-        if (Math.abs(centerXPct - 50) < 1.5) x = 50 - startLayout.width / 2;
-        const centerYPct = y + startLayout.height / 2;
-        if (Math.abs(centerYPct - 50) < 1.5) y = 50 - startLayout.height / 2;
+        const guides: Guide[] = [];
+
+        const snapX = findSnap(
+          [x, x + startLayout.width / 2, x + startLayout.width],
+          xCandidates,
+          SNAP_TOLERANCE
+        );
+        if (snapX) {
+          x = clamp(x + snapX.delta, 0, 100 - startLayout.width);
+          guides.push({ axis: "x", position: snapX.line });
+        }
+
+        const snapY = findSnap(
+          [y, y + startLayout.height / 2, y + startLayout.height],
+          yCandidates,
+          SNAP_TOLERANCE
+        );
+        if (snapY) {
+          y = clamp(y + snapY.delta, 0, 100 - startLayout.height);
+          guides.push({ axis: "y", position: snapY.line });
+        }
+
+        onGuidesChange(guides);
         onLayoutChange({ ...startLayout, x, y });
       } else if (mode === "resize") {
-        const width = clamp(startLayout.width + dxPct, 4, 100 - startLayout.x);
-        const height = clamp(startLayout.height + dyPct, 4, 100 - startLayout.y);
+        let width = clamp(startLayout.width + dxPct, 4, 100 - startLayout.x);
+        let height = clamp(startLayout.height + dyPct, 4, 100 - startLayout.y);
+        const guides: Guide[] = [];
+
+        const snapRight = findSnap([startLayout.x + width], xCandidates, SNAP_TOLERANCE);
+        if (snapRight) {
+          width = clamp(snapRight.line - startLayout.x, 4, 100 - startLayout.x);
+          guides.push({ axis: "x", position: snapRight.line });
+        }
+
+        const snapBottom = findSnap([startLayout.y + height], yCandidates, SNAP_TOLERANCE);
+        if (snapBottom) {
+          height = clamp(snapBottom.line - startLayout.y, 4, 100 - startLayout.y);
+          guides.push({ axis: "y", position: snapBottom.line });
+        }
+
+        onGuidesChange(guides);
         onLayoutChange({ ...startLayout, width, height });
       } else {
         let angle =
@@ -75,6 +164,7 @@ export function CanvasElementView({
     function handleUp() {
       window.removeEventListener("pointermove", handleMove);
       window.removeEventListener("pointerup", handleUp);
+      onGuidesChange([]);
     }
 
     window.addEventListener("pointermove", handleMove);
@@ -116,7 +206,7 @@ export function CanvasElementView({
         zIndex: index,
       }}
     >
-      <ElementContent element={element} layout={layout} locale={locale} />
+      <ElementContent element={element} layout={layout} locale={locale} interactive={false} />
       {selected && (
         <>
           <div

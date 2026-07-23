@@ -38,6 +38,10 @@ export function CanvasWorkspace({
         selectedId={editor.selectedId}
         stageRef={editor.stageRef}
         locale={locale}
+        gridEnabled={editor.gridEnabled}
+        setGridEnabled={editor.setGridEnabled}
+        gridSize={editor.gridSize}
+        setGridSize={editor.setGridSize}
         onSelect={editor.setSelectedId}
         onLayoutChange={editor.updateLayout}
         onDeselect={() => editor.setSelectedId(null)}

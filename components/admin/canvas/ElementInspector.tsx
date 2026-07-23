@@ -147,6 +147,27 @@ export function ElementInspector({
               className="w-full"
             />
           </label>
+          <label className="block">
+            <span className="mb-1 block text-xs font-semibold text-deep-blue/70">
+              Fit inside box
+            </span>
+            <select
+              value={element.objectFit ?? "cover"}
+              onChange={(event) =>
+                onElementChange({
+                  ...element,
+                  objectFit: event.target.value as NonNullable<typeof element.objectFit>,
+                })
+              }
+              className="w-full rounded-lg border border-deep-blue/20 px-3 py-2 text-sm"
+            >
+              <option value="cover">Cover (fill box, crop overflow)</option>
+              <option value="contain">Contain (show full image, may letterbox)</option>
+              <option value="fill">Fill (stretch to box, may distort)</option>
+              <option value="scale-down">Scale down (contain, never upscale)</option>
+              <option value="none">None (original size, crop overflow)</option>
+            </select>
+          </label>
         </>
       )}
 
